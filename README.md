@@ -41,3 +41,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 >>>>>>> 2bde830 (Initial commit from Create Next App)
+
+### Preview
+
+<img width="959" alt="pomodoro" src="https://github.com/iagpomponet/pomodoro/assets/49757478/b412d509-4e58-4abf-a154-4c4f4e9f55e4">
