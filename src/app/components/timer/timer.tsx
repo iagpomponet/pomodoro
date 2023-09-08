@@ -1,22 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import * as css from "./timer.styles";
-
-interface PomodoroTypeObjI {
-  [key: string]: {
-    id: string;
-    label: string;
-    time: number;
-  };
-}
+import { PomodoroTypeObjI } from "./timer.types";
 
 const types: PomodoroTypeObjI = {
   pomodoro: {
     id: "pomodoro",
     label: "Pomodoro",
-    time: 1,
+    time: 25,
   },
   shortBreak: {
     id: "shortBreak",
@@ -34,21 +27,26 @@ function spawnNotification(title: string) {
   new Notification(title);
 }
 
+type PomodoroKey = keyof typeof types;
+
 export default function Timer() {
-  const [results, setResults] = useState({
+  const [running, setRunning] = useState(false);
+  const [type, setType] = useState(types.pomodoro);
+  const [time, setTime] = useState(type.time * 60);
+
+  const [results, setResults] = useState<Record<PomodoroKey, number>>({
     pomodoro: 0,
     shortBreak: 0,
     longBreak: 0,
   });
-  const alarm = new Audio("/alarm.mp3");
-
-  const [running, setRunning] = useState(false);
-  const [type, setType] = useState(types.pomodoro);
-  // time stored in seconds
-  const [time, setTime] = useState(type.time * 60);
+  const alarm = useRef<any>(
+    typeof Audio != "undefined" ? new Audio("/alarm.mp3") : null
+  );
 
   const startAudio = () => {
-    alarm.play();
+    if (alarm.current) {
+      alarm.current.play();
+    }
   };
 
   const handleSetTime = (time: number) => {
@@ -63,16 +61,23 @@ export default function Timer() {
     setRunning(!running);
   };
 
+  const handleSelectType = (key: string) => {
+    if (running) setRunning(false);
+    setType(types[key]);
+  };
+
   useEffect(() => {
     if (time === 0) {
       const currentType = types[type.id];
 
-      spawnNotification("Time to take a break");
+      if (Notification.permission === "granted") {
+        spawnNotification("Time to take a break");
+      }
 
       startAudio();
       setRunning(false);
       setResults((prevState) => {
-        const key = currentType.id as keyof typeof prevState;
+        const key = currentType.id;
 
         return {
           ...prevState,
@@ -91,7 +96,10 @@ export default function Timer() {
   useEffect(() => {
     let timeOutId: NodeJS.Timeout | undefined;
     if (running) {
-      timeOutId = setInterval(() => setTime((prevState) => prevState - 1), 10);
+      timeOutId = setInterval(
+        () => setTime((prevState) => prevState - 1),
+        1000
+      );
     }
 
     return () => {
@@ -117,7 +125,7 @@ export default function Timer() {
             <css.Tab
               selected={types[key].label === type.label}
               onClick={() => {
-                setType(types[key]);
+                handleSelectType(key);
               }}
               key={key}
             >
@@ -138,9 +146,7 @@ export default function Timer() {
         </div>
       </div>
 
-      <css.ResultCount>
-        #{results[type.id as keyof typeof results]}
-      </css.ResultCount>
+      <css.ResultCount>#{results[type.id]}</css.ResultCount>
     </css.TimerSection>
   );
 }
