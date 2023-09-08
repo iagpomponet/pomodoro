@@ -67,6 +67,8 @@ export default function Timer() {
   };
 
   useEffect(() => {
+    document.title = formatTime(time);
+
     if (time === 0) {
       const currentType = types[type.id];
 
@@ -117,36 +119,38 @@ export default function Timer() {
   };
 
   return (
-    <css.TimerSection>
-      {/* tabs */}
-      <css.Tabs>
-        {Object.keys(types).map((key: string) => {
-          return (
-            <css.Tab
-              selected={types[key].label === type.label}
-              onClick={() => {
-                handleSelectType(key);
-              }}
-              key={key}
-            >
-              {types[key].label}
-            </css.Tab>
-          );
-        })}
-      </css.Tabs>
+    <>
+      <css.TimerSection>
+        {/* tabs */}
+        <css.Tabs>
+          {Object.keys(types).map((key: string) => {
+            return (
+              <css.Tab
+                selected={types[key].label === type.label}
+                onClick={() => {
+                  handleSelectType(key);
+                }}
+                key={key}
+              >
+                {types[key].label}
+              </css.Tab>
+            );
+          })}
+        </css.Tabs>
 
-      {/* timer */}
-      <div>
-        {/* timer action */}
-        <css.Timer>{formatTime(time)}</css.Timer>
+        {/* timer */}
         <div>
-          <css.Button onClick={handleTimeButtonClick}>
-            {running ? "PAUSE" : "START"}
-          </css.Button>
+          {/* timer action */}
+          <css.Timer>{formatTime(time)}</css.Timer>
+          <div>
+            <css.Button onClick={handleTimeButtonClick}>
+              {running ? "PAUSE" : "START"}
+            </css.Button>
+          </div>
         </div>
-      </div>
 
-      <css.ResultCount>#{results[type.id]}</css.ResultCount>
-    </css.TimerSection>
+        <css.ResultCount>#{results[type.id]}</css.ResultCount>
+      </css.TimerSection>
+    </>
   );
 }
